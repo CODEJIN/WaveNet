@@ -1,0 +1,2 @@
+./Wav_for_Inference/FV.AWB.arctic_a0001.wav	1
+./Wav_for_Inference/LJ.LJ050-0278.wav	0

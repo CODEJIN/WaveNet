@@ -1,0 +1,55 @@
+{
+    "Sound": {
+        "Spectrogram_Dim": 513,
+        "Mel_Dim": 80,
+        "Frame_Length": 1024,
+        "Frame_Shift": 256,
+        "Sample_Rate": 16000,
+        "Max_Abs_Mel": 4
+    },
+
+    "WaveNet": {
+        "Initial_Filters": 128,
+        "ResConvGLU": {
+            "Blocks": 4,
+            "Stacks_in_Block": 6,
+            "Kernel_Size": 3,
+            "Skip_Out_Filters": 128,
+            "Dropout_Rate": 0.05
+        },
+        "Speaker_Count": 8,
+
+        "Upsample": {
+            "Res_Blocks": 10,
+            "Scales": [4, 4, 4, 4],
+            "Hidden_Size": 128,
+            "Output_Size": 128,
+            "Pad": 2
+        },        
+        "MoL_Sizes": 30
+    },
+
+    "Train": {
+        "Pattern_Path": "C:/Pattern/WN.Pattern.LJFV",
+        "Metadata_File": "METADATA.PICKLE",
+        "Batch_Size": 128,
+        "Wav_Length": 768,
+        "Max_Pattern_Queue": 100,
+        "Initial_Learning_Rate": 1e-4,
+        "Min_Learning_Rate": 1e-4,
+        "ADAM": {
+            "Beta1": 0.9,
+            "Beta2": 0.999,
+            "Epsilon": 1e-7
+        },
+        "Inference_Timing": 10000,
+        "Checkpoint_Save_Timing": 1000,
+        "Initial_Inference": true
+    },
+
+
+    "Use_Mixed_Precision": false,
+    "Inference_Path": "D:/WaveNet.LJFV.Results/Inference",
+    "Checkpoint_Path": "D:/WaveNet.LJFV.Results/Checkpoint",
+    "Device": "-1"
+}
