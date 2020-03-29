@@ -32,11 +32,15 @@
     "Train": {
         "Pattern_Path": "C:/Pattern/WN.Pattern.LJFV",
         "Metadata_File": "METADATA.PICKLE",
-        "Batch_Size": 128,
+        "Batch_Size": 16,
         "Wav_Length": 768,
         "Max_Pattern_Queue": 100,
-        "Initial_Learning_Rate": 1e-4,
-        "Min_Learning_Rate": 1e-4,
+        "Learning_Rate": {
+            "Initial": 1e-3,
+            "Min": 1e-5,
+            "Decay_Step": 200000,
+            "Decay_Rate": 0.5
+        },        
         "ADAM": {
             "Beta1": 0.9,
             "Beta2": 0.999,
@@ -44,12 +48,12 @@
         },
         "Inference_Timing": 10000,
         "Checkpoint_Save_Timing": 1000,
-        "Initial_Inference": true
+        "Initial_Inference": false
     },
 
 
     "Use_Mixed_Precision": false,
     "Inference_Path": "D:/WaveNet.LJFV.Results/Inference",
     "Checkpoint_Path": "D:/WaveNet.LJFV.Results/Checkpoint",
-    "Device": "-1"
+    "Device": "0"
 }

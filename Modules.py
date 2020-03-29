@@ -119,6 +119,8 @@ class WaveNet(tf.keras.Model):
                 skips += new_Skips
         skips *= np.sqrt(1.0 / (hp_Dict['WaveNet']['ResConvGLU']['Blocks'] * hp_Dict['WaveNet']['ResConvGLU']['Stacks_in_Block']))
 
+        # Last x is not used.
+
         logits = self.layer_Dict['Last'](skips)
         
         return logits, tf.zeros(shape=(tf.shape(logits)[0], 1), dtype= logits.dtype)
@@ -337,7 +339,7 @@ class ResConvGLU(tf.keras.layers.Layer):
         out_Tensor = self.layer_Dict['Out'](new_Tensor)
 
         out_Tensor = (out_Tensor + x) * np.sqrt(0.5)
-        
+
         return out_Tensor, skip_Tenosr
 
     def inputs_initialize(self):
@@ -448,13 +450,17 @@ class Incremental_Conv1D_Causal_WN(tf.keras.layers.Layer):
             axis= [0, 1],
             )
 
-        return tf.nn.conv1d(
+        outputs = tf.nn.conv1d(
             input= inputs,
             filters= norm_kernel,
             stride= self.strides,
             padding= 'VALID',
             dilations= self.dilation_rate
             )
+        if self.use_bias:
+            outputs = tf.nn.bias_add(outputs, bias= self.bias)
+
+        return outputs
 
     def incremental(self, inputs):
         self.previous_inputs.append(inputs)
@@ -464,15 +470,17 @@ class Incremental_Conv1D_Causal_WN(tf.keras.layers.Layer):
             axis= [0, 1],
             )
 
-        x = tf.nn.conv1d(
+        outputs = tf.nn.conv1d(
             input= self.get_padded_incremental_inputs(),
             filters= norm_kernel,
             stride= self.strides,
             padding= 'VALID',
             dilations= self.dilation_rate
             )
+        if self.use_bias:
+            outputs = tf.nn.bias_add(outputs, bias= self.bias)
 
-        return x
+        return outputs
 
     def get_padded_incremental_inputs(self):
         left_size = self.dilation_rate * (self.kernel_size - 1)

@@ -81,10 +81,10 @@ class WaveNet:
             )
 
         learning_Rate = Modules.ExponentialDecay(
-            initial_learning_rate= hp_Dict['Train']['Initial_Learning_Rate'],
-            decay_steps= 100000,
-            decay_rate= 0.5,
-            min_learning_rate= hp_Dict['Train']['Min_Learning_Rate'],
+            initial_learning_rate= hp_Dict['Train']['Learning_Rate']['Initial'],
+            decay_steps= hp_Dict['Train']['Learning_Rate']['Decay_Step'],
+            decay_rate= hp_Dict['Train']['Learning_Rate']['Decay_Rate'],
+            min_learning_rate= hp_Dict['Train']['Learning_Rate']['Min'],
             staircase= False
             )
 
@@ -117,7 +117,12 @@ class WaveNet:
                 training= True
                 )
         gradients = tape.gradient(loss, self.model_Dict['Train'].trainable_variables)
-        self.optimizer.apply_gradients(zip(gradients, self.model_Dict['Train'].trainable_variables))
+
+        self.optimizer.apply_gradients([
+            (gradient, variable)
+            for gradient, variable in zip(gradients, self.model_Dict['Train'].trainable_variables)
+            if not gradient is None
+            ])  #Avoid last outout
 
         return loss
 
@@ -202,7 +207,6 @@ class WaveNet:
 
             if self.optimizer.iterations.numpy() % hp_Dict['Train']['Checkpoint_Save_Timing'] == 0:
                 Save_Checkpoint()
-                self.optimizer.learning_rate.initial_learning_rate = hp_Dict['Train']['Initial_Learning_Rate']
             
             if self.optimizer.iterations.numpy() % hp_Dict['Train']['Inference_Timing'] == 0:
                 Run_Inference()
