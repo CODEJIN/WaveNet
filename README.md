@@ -162,7 +162,7 @@ new_WaveNet.Inference(
 * Voice quality is not perfect, but I think that the reason is because the insufficient learning steps.
 * I will train more.
 
-![Loss](./Example_Results/Figures/Loss.PNG)
+![Loss](./Example_Results/Figures/Loss.png)
 
 [Wav_IDX_0](./Example_Results/Wav/20200330.224818.IDX_0.WAV)
 ![Figure_IDX_0](./Example_Results/Figures/20200330.224818.IDX_0.PNG)
