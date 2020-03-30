@@ -126,37 +126,37 @@ class WaveNet(tf.keras.Model):
         return logits, tf.zeros(shape=(tf.shape(logits)[0], 1), dtype= logits.dtype)
 
     def inference(self, local_Conditions, global_Conditions):
+        # Initialize
+        self.layer_Dict['First'].layers[-1].inputs_initialize()
+        for block_Index in range(hp_Dict['WaveNet']['ResConvGLU']['Blocks']):
+            for stack_Index in range(hp_Dict['WaveNet']['ResConvGLU']['Stacks_in_Block']):
+                self.layer_Dict['ResConvGLU_{}_{}'.format(block_Index, stack_Index)].inputs_initialize()
+
         batch_Size = tf.shape(local_Conditions)[0]
         local_Conditions = self.layer_Dict['Local_Condition_Upsample'](local_Conditions)
         global_Conditions = self.layer_Dict['Global_Condition_Embedding'](global_Conditions)
 
         # Inference step by step
-        initial_Samples = tf.zeros(shape=(batch_Size, 1))        
+        initial_Samples = tf.zeros(shape=(batch_Size, 1), dtype= local_Conditions.dtype)        
         def body(step, samples):            
             current_Local_Condition = tf.expand_dims(local_Conditions[:, step, :], axis= 1)
             # global_Condition is always same. Thus, there is no step slicing.
-            
-            # Initialize
-            self.layer_Dict['First'].layers[-1].inputs_initialize()
-            for block_Index in range(hp_Dict['WaveNet']['ResConvGLU']['Blocks']):
-                for stack_Index in range(hp_Dict['WaveNet']['ResConvGLU']['Stacks_in_Block']):
-                    self.layer_Dict['ResConvGLU_{}_{}'.format(block_Index, stack_Index)].inputs_initialize()
 
             x = self.layer_Dict['First'](
                 inputs= tf.expand_dims(samples[:, -1], axis= 1),
                 training= tf.convert_to_tensor(False)
-                )
+                )            
             skips = 0
             for block_Index in range(hp_Dict['WaveNet']['ResConvGLU']['Blocks']):
                 for stack_Index in range(hp_Dict['WaveNet']['ResConvGLU']['Stacks_in_Block']):
                     x, new_Skips = self.layer_Dict['ResConvGLU_{}_{}'.format(block_Index, stack_Index)](
                         inputs= [x, current_Local_Condition, global_Conditions]
-                        )
+                        )                    
                     skips += new_Skips
-            skips *= np.sqrt(1.0 / (hp_Dict['WaveNet']['ResConvGLU']['Blocks'] * hp_Dict['WaveNet']['ResConvGLU']['Stacks_in_Block']))
             
-            logit = self.layer_Dict['Last'](skips)                        
-            samples = tf.concat([initial_Samples, Sample_from_Discretized_Mix_Logistic(logit)], axis= -1)
+            skips *= np.sqrt(1.0 / (hp_Dict['WaveNet']['ResConvGLU']['Blocks'] * hp_Dict['WaveNet']['ResConvGLU']['Stacks_in_Block']))
+            logit = self.layer_Dict['Last'](skips)
+            samples = tf.concat([samples, Sample_from_Discretized_Mix_Logistic(logit)], axis= -1)
             
             try: progress(step + 1, local_Conditions.shape[1], status='({}/{})'.format(step + 1, local_Conditions.get_shape()[1])) #initial time it will be ignored.
             except: pass
@@ -319,7 +319,7 @@ class ResConvGLU(tf.keras.layers.Layer):
 
         x, local_Condition, global_Condition = inputs
 
-        new_Tensor = self.layer_Dict['Dropout'](x)
+        new_Tensor = self.layer_Dict['Dropout'](x, training)        
         new_Tensor = self.layer_Dict['Conv1D'](new_Tensor, training)
         h_Tensor, s_Tensor = tf.split(new_Tensor, num_or_size_splits= 2, axis= -1)
 
@@ -334,12 +334,12 @@ class ResConvGLU(tf.keras.layers.Layer):
         s_Tensor = s_Tensor + global_S_Tensor
 
         new_Tensor = tf.math.tanh(h_Tensor) * tf.math.sigmoid(s_Tensor)
-
+        
         skip_Tenosr = self.layer_Dict['Skip'](new_Tensor)
         out_Tensor = self.layer_Dict['Out'](new_Tensor)
 
         out_Tensor = (out_Tensor + x) * np.sqrt(0.5)
-
+        
         return out_Tensor, skip_Tenosr
 
     def inputs_initialize(self):
@@ -483,19 +483,18 @@ class Incremental_Conv1D_Causal_WN(tf.keras.layers.Layer):
         return outputs
 
     def get_padded_incremental_inputs(self):
-        left_size = self.dilation_rate * (self.kernel_size - 1)
-
-        stacked_inputs = tf.concat(self.previous_inputs, axis= 1)
+        out_steps = self.dilation_rate * (self.kernel_size - 1) + 1
+        stacked_inputs = tf.concat(self.previous_inputs, axis= 1)        
         padding = tf.zeros(
             shape=(
                 tf.shape(stacked_inputs)[0],
-                tf.maximum(left_size - tf.shape(stacked_inputs)[1], 0),
+                tf.maximum(out_steps - tf.shape(stacked_inputs)[1], 0),
                 stacked_inputs.get_shape()[-1]
                 ),
             dtype= stacked_inputs.dtype
             )
 
-        return tf.concat([padding, stacked_inputs], axis= 1)[:, -(left_size + 1):]
+        return tf.concat([padding, stacked_inputs], axis= 1)[:, -out_steps:]
         
     def inputs_initialize(self):
         self.previous_inputs = []
