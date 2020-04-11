@@ -125,7 +125,7 @@ new_Model.Restore()
     ```
 4. Run following command:
 ```
-new_WaveNet.Inference(
+new_Model.Inference(
     mel_List= mel_List,
     mel_Speaker_List= mel_Speaker_List,
     wav_List= path_List,
@@ -156,29 +156,48 @@ new_WaveNet.Inference(
 
 # Result
 
-* The following results are based on the checkpoint of 100000 steps of 16 batchs (76.15 epochs).
+* The following results are based on the checkpoint of 500000 steps.
+    * 100000 of 16 batchs (76.15 epochs) on my desktop (Nvidia GTX 1050ti).
+    * After, 400000 of 64 batchs (1218.35 epochs) on Google Colaboratory.
 * 8 Talkers (1 LJSpeech + 7 FastVox) are trained.
 * The result is based on the original wav file. The joint with the voice synthesizer has not been progressed yet.
-* Voice quality is not perfect, but I think that the reason is because the insufficient learning steps.
-* I will train more.
 
 ![Loss](./Example_Results/Figures/Loss.png)
+* Because of colab connection problem, some log information is missing.
 
-[Wav_IDX_0](./Example_Results/Wav/20200330.224818.IDX_0.WAV)
-![Figure_IDX_0](./Example_Results/Figures/20200330.224818.IDX_0.PNG)
+* Split mel window 7 (the concatnation of 1792 sample bathces)
+    * Wav index 0
+        
+        [Mel7_Wav_IDX_0](./Example_Results/Wav/20200409.074041.IDX_0.WAV)
+        ![Mel7_Figure_IDX_0](./Example_Results/Figures/20200409.074041.IDX_0.PNG)
 
-[Wav_IDX_1](./Example_Results/Wav/20200330.224818.IDX_1.WAV)
-![Figure_IDX_1](./Example_Results/Figures/20200330.224818.IDX_1.PNG)
+    * Wav index 1
+
+        [Mel7_Wav_IDX_1](./Example_Results/Wav/20200409.074041.IDX_1.WAV)
+        ![Mel7_Figure_IDX_1](./Example_Results/Figures/20200409.074041.IDX_1.PNG)
+
+* Split mel window 64 (the concatnation of 16384 sample bathces)
+
+    * Wav index 0
+        
+        [Mel64_Wav_IDX_0](./Example_Results/Wav/20200411.135009.IDX_0.WAV)
+        ![Mel64_Figure_IDX_0](./Example_Results/Figures/20200411.135009.IDX_0.PNG)
+
+    * Wav index 1
+
+        [Mel64_Wav_IDX_1](./Example_Results/Wav/20200411.135009.IDX_1.WAV)
+        ![Mel64_Figure_IDX_1](./Example_Results/Figures/20200411.135009.IDX_1.PNG)
 
 # Trained checkpoint
 
 [Checkpoint here](./Example_Results/Checkpoint/Checkpoint.zip)
 
-* This is the checkpoint of 100000 steps of 16 batchs (76.15 epochs).
+* This is the checkpoint of 500000 steps. of 16 batchs (76.15 epochs).
+    * 100000 of 16 batchs (76.15 epochs) on my desktop (Nvidia GTX 1050ti).
+    * After, 400000 of 64 batchs (1218.35 epochs) on Google Colaboratory.
 * 8 Talkers (1 LJSpeech + 7 FastVox) are trained.
 
 # Future works
-0. More training
 
 1. Integrating GST Tacotron
     * https://github.com/CODEJIN/GST_Tacotron    
