@@ -107,8 +107,8 @@ class Feeder:
         overlap_Window= 1,
         batch_Size= 16
         ):
-        split_Mel_Window += 2 * hp_Dict['WaveNet']['Upsample']['Pad']
-        overlap_Window += 2 * hp_Dict['WaveNet']['Upsample']['Pad']
+        split_Mel_Window += overlap_Window + 2 * hp_Dict['WaveNet']['Upsample']['Pad']
+        overlap_Window += hp_Dict['WaveNet']['Upsample']['Pad']
 
         if wav_List is None and mel_List is None:
             print('One of paths must be not None.')

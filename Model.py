@@ -1,6 +1,3 @@
-# Refer:
-# https://https://github.com/fatchord/WaveRNN
-
 import tensorflow as tf
 from tensorflow.keras.mixed_precision import experimental as mixed_precision
 import numpy as np
@@ -53,15 +50,15 @@ class WaveNet:
             dtype= tf.int32
             )        
 
-        layer_Dict['WaveRNN'] = Modules.WaveNet()        
+        layer_Dict['WaveNet'] = Modules.WaveNet()        
         layer_Dict['Loss'] = Modules.Loss()
         
-        tensor_Dict['Logits'], _ = layer_Dict['WaveRNN'](
+        tensor_Dict['Logits'], _ = layer_Dict['WaveNet'](
             inputs= [input_Dict['Audio'][:, :-1], input_Dict['Mel'], input_Dict['Speaker']],
             training= True
             ) #Using audio is [:, :-1].
 
-        _, tensor_Dict['Samples'] = layer_Dict['WaveRNN'](
+        _, tensor_Dict['Samples'] = layer_Dict['WaveNet'](
             inputs= [input_Dict['Audio'], input_Dict['Mel'], input_Dict['Speaker']],
             training= False
             ) #Using audio is [:, :-1].
