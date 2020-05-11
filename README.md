@@ -85,6 +85,33 @@ At least, one or more of datasets must be used.
     * Ignore patterns that exceed the set number of each dataset.
 * -mw
     * The number of threads used to create the pattern
+
+
+# __※If you want to generate your own dataset__
+
+* In this implementation, the patterns of dataset are created through two processes.
+
+## Pattern generate
+
+* Each pattern file is a pickle file of a dict object that contains several information.
+* The dict contains the following keys and values (`key`: `value`).
+    * `Signal`: wav signal with range -1 to 1
+    * `Mel`: Mel spectrogram converted from signal
+    * `Speaker id`: Speaker id of pattern
+        * Speaker id is an int variable.
+        * Speaker id must start from 0 and increase by 1.
+    * `Dataset`: Dataset label
+* Please refer to [here](./Pattern_Generator.py#L36-L51) about a detail function used in pattern file generation.
+
+## Metadata generate
+
+* After finising to generate all pattern files, all of them are loaded once and basic information are saved.
+* Metadata contains three pieces of information.
+    * Hyper parameters related to the pattern generating at the time the patterns were created
+    * The shape of signal and mel spectrogram, speakar id, dataset of each pattern file
+    * A file name list of pattern files
+* The file name of metadata is always 'METADATA.PICKLE'.
+* Please refer to [here](./Pattern_Generator.py#L130-L161) about a detail function used in metadata file generation.
     
 # Inference file path while training for verification.
 
